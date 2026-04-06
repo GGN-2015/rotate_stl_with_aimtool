@@ -1,0 +1,21 @@
+[project]
+name = "rotate-stl-with-aimtool"
+version = "0.1.0"
+description = "Register the specified STL model according to the marker ball positions defined in the aimtool file."
+authors = [
+    {name = "GGN_2015",email = "neko@jlulug.org"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "stl_find_ball",
+    "solve_rigid_point_set_rt_pro",
+    "stl_scale_translate_rotate",
+    "rotmat_to_quaternion"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
