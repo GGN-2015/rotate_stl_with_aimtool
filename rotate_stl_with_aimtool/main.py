@@ -56,7 +56,8 @@ def rotate_stl_with_aimtool(
         export_path:str, 
         aimtool_path:str,
         locate_sphere_in_stl_kargs:dict=dict(),
-        vtk_check:bool=False) -> float:
+        vtk_check:bool=False,
+        rank_idx:int=0) -> float:
 
     # 找到 STL 文件中的所有标志球
     detected_spheres = locate_sphere_in_stl(stl_path=stl_path, **locate_sphere_in_stl_kargs)
@@ -96,7 +97,7 @@ def rotate_stl_with_aimtool(
 
     # 获取旋转平移矩阵
     Rto, Tto = compute_best_rigid_transform_pro(
-        stl_markers, aim_markers)
+        stl_markers, aim_markers, rank_idx=rank_idx)
     Rto_l = [
         [float(val) for val in item]
         for item in Rto
@@ -128,7 +129,8 @@ if __name__ == "__main__":
             "./test_data/BONE-1.new.stl",
             "./test_data/BONE-2.aimtool",
             locate_sphere_in_stl_kargs={"max_ball_cnt":4},
-            vtk_check=True
+            vtk_check=False,
+            rank_idx=2
         ),
         "mm"
     )

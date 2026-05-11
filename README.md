@@ -21,7 +21,8 @@ print(
         "./test_data/BONE-1.new.stl",
         "./test_data/BONE-2.aimtool",
         locate_sphere_in_stl_kargs={"max_ball_cnt":4},
-        vtk_check=True
+        vtk_check=True,
+        rank_idx=2
     ),
     "mm"
 )
