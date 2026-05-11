@@ -17,9 +17,9 @@ from rotate_stl_with_aimtool import rotate_stl_with_aimtool
 print(
     "maximal error for tool",
     rotate_stl_with_aimtool(
-        "BONE-1.stl", 
-        "BONE-1.new.stl",
-        "BONE-2.aimtool"
+        "./test_data/BONE-1.stl", 
+        "./test_data/BONE-1.new.stl",
+        "./test_data/BONE-2.aimtool"
     ),
     "mm"
 )

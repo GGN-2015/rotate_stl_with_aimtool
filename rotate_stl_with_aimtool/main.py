@@ -67,7 +67,7 @@ def rotate_stl_with_aimtool(
     
     # 获得 STL 标志物中心点
     stl_markers = np.array([
-        center for center, _ in detected_spheres
+        center for center, _, _ in detected_spheres
     ])
 
     # 获得 STL 文件中的最远点距离
@@ -101,7 +101,7 @@ def rotate_stl_with_aimtool(
     # 找到 STL 文件中的所有标志球
     new_detected_spheres = locate_sphere_in_stl(export_path)
     new_stl_markers = np.array([
-        center for center, _ in new_detected_spheres
+        center for center, _, _ in new_detected_spheres
     ])
 
     return float(max_min_distance(
@@ -113,8 +113,9 @@ if __name__ == "__main__":
     print(
         "maximal error for tool",
         rotate_stl_with_aimtool(
-            "BONE-1.stl", 
-            "BONE-1.new.stl",
-            "BONE-2.aimtool"
-        )
+            "./test_data/BONE-1.stl", 
+            "./test_data/BONE-1.new.stl",
+            "./test_data/BONE-2.aimtool"
+        ),
+        "mm"
     )
