@@ -3,8 +3,11 @@ from solve_rigid_point_set_rt_pro import compute_best_rigid_transform_pro
 from stl_scale_translate_rotate   import stl_scale
 from stl_scale_translate_rotate   import stl_translate
 from stl_scale_translate_rotate   import stl_rotate_quaternion
+from solve_rigid_point_set_rt     import apply_transform
 from rotmat_to_quaternion         import rotation_matrix_to_quaternion
 import numpy as np
+from tqdm import tqdm
+import math
 
 try:
     from .aimtool_reader import aimtool_reader
@@ -89,35 +92,50 @@ def rotate_stl_with_aimtool(
     aim_markers = np.array(aimtool["markers"])
 
     # 获得 工具文件中的最远点距离
-    fd2 = get_farthest_pair_distance(stl_markers)
+    fd2 = get_farthest_pair_distance(aim_markers)
 
     # 对 STL 文件进行缩放
     stl_markers = stl_markers * (fd2 / fd1)
-    stl_scale(stl_path, (fd2 / fd1), export_path)
 
-    # 获取旋转平移矩阵
-    Rto, Tto = compute_best_rigid_transform_pro(
-        stl_markers, aim_markers, rank_idx=rank_idx)
-    Rto_l = [
-        [float(val) for val in item]
-        for item in Rto
-    ]
-    Tto_l = [float(val) for val in Tto]
+    # 强行枚举一个方案
+    def make_next(next_idx:int):
+        stl_scale(stl_path, (fd2 / fd1), export_path)
 
-    # 旋转平移
-    stl_rotate_quaternion(export_path, 
-        rotation_matrix_to_quaternion(Rto_l), export_path)
-    stl_translate(export_path, Tto_l, export_path)
+        # 获取旋转平移矩阵
+        Rto, Tto = compute_best_rigid_transform_pro(
+            stl_markers, aim_markers, rank_idx=next_idx)
+        Rto_l = [
+            [float(val) for val in item]
+            for item in Rto
+        ]
+        Tto_l = [float(val) for val in Tto]
 
-    # 旋转之后要进行检查
-    # 找到 STL 文件中的所有标志球
-    new_detected_spheres = locate_sphere_in_stl(export_path)
-    new_stl_markers = np.array([
-        center for center, _, _ in new_detected_spheres
-    ])
+        # 旋转平移
+        stl_rotate_quaternion(export_path, 
+            rotation_matrix_to_quaternion(Rto_l), export_path)
+        stl_translate(export_path, Tto_l, export_path)
 
-    return float(max_min_distance(
-        new_stl_markers, aim_markers))
+        # 旋转之后要进行检查
+        # 找到 STL 文件中的所有标志球
+        new_detected_spheres = apply_transform(stl_markers, np.array(Rto_l), np.array(Tto_l))
+        new_stl_markers = np.array([
+            center for center, _, _ in new_detected_spheres
+        ])
+        return new_stl_markers
+
+    val_to_nxt_idx = []
+    for next_idx in tqdm(range(math.factorial(len(detected_spheres)))):
+        new_stl_markers = make_next(next_idx)
+        val_to_nxt_idx.append((
+            float(max_min_distance(new_stl_markers, aim_markers)),
+            next_idx
+        ))
+
+    val_to_nxt_idx.sort() # 按照误差递增排序
+    _, real_nidx = val_to_nxt_idx[rank_idx]
+
+    new_stl_markers = make_next(real_nidx)
+    return float(max_min_distance(new_stl_markers, aim_markers))
 
 
 
@@ -130,7 +148,14 @@ if __name__ == "__main__":
             "./test_data/BONE-2.aimtool",
             locate_sphere_in_stl_kargs={"max_ball_cnt":4},
             vtk_check=False,
-            rank_idx=2
+            rank_idx=1
         ),
         "mm"
     )
+
+    # 覆盖目标文件
+    import shutil
+    import os
+    if os.path.isdir("../medscope_demo_project/medscope_demo_program/data/"):
+        os.remove("../medscope_demo_project/medscope_demo_program/data/BONE-1.new.stl")
+        shutil.copy2("./test_data/BONE-1.new.stl", "../medscope_demo_project/medscope_demo_program/data")

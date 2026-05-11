@@ -1,6 +1,6 @@
 [project]
 name = "rotate-stl-with-aimtool"
-version = "0.1.3"
+version = "0.1.4"
 description = "Register the specified STL model according to the marker ball positions defined in the aimtool file."
 authors = [
     {name = "GGN_2015",email = "neko@jlulug.org"}
@@ -11,8 +11,10 @@ requires-python = ">=3.10"
 dependencies = [
     "stl_find_ball",
     "solve_rigid_point_set_rt_pro",
+    "solve_rigid_point_set_rt",
     "stl_scale_translate_rotate",
-    "rotmat_to_quaternion"
+    "rotmat_to_quaternion",
+    "tqdm"
 ]
 
 
