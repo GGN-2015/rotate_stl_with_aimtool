@@ -1,4 +1,4 @@
-from stl_find_ball                import locate_sphere_in_stl
+from stl_find_ball                import locate_sphere_in_stl, vtk_visualization
 from solve_rigid_point_set_rt_pro import compute_best_rigid_transform_pro
 from stl_scale_translate_rotate   import stl_scale
 from stl_scale_translate_rotate   import stl_translate
@@ -54,10 +54,21 @@ def get_farthest_pair_distance(points: np.ndarray) -> float:
 def rotate_stl_with_aimtool(
         stl_path:str, 
         export_path:str, 
-        aimtool_path:str) -> float:
+        aimtool_path:str,
+        locate_sphere_in_stl_kargs:dict=dict(),
+        vtk_check:bool=False) -> float:
 
     # 找到 STL 文件中的所有标志球
-    detected_spheres = locate_sphere_in_stl(stl_path=stl_path)
+    detected_spheres = locate_sphere_in_stl(stl_path=stl_path, **locate_sphere_in_stl_kargs)
+
+    # 使用 vtk 对标志球识别效果进行可视化
+    if vtk_check:
+        if locate_sphere_in_stl_kargs.get("dist_tol_ratio") is not None:
+            dist_tol_ratio = locate_sphere_in_stl_kargs["dist_tol_ratio"]
+        else:
+            dist_tol_ratio = 0.1
+        vtk_visualization(
+            stl_path=stl_path, spheres=detected_spheres, dist_tol_ratio=dist_tol_ratio)
 
     # 获取工具中的坐标点集合
     aimtool = aimtool_reader(aimtool_path)
@@ -115,7 +126,9 @@ if __name__ == "__main__":
         rotate_stl_with_aimtool(
             "./test_data/BONE-1.stl", 
             "./test_data/BONE-1.new.stl",
-            "./test_data/BONE-2.aimtool"
+            "./test_data/BONE-2.aimtool",
+            locate_sphere_in_stl_kargs={"max_ball_cnt":4},
+            vtk_check=True
         ),
         "mm"
     )

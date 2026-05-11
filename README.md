@@ -19,7 +19,9 @@ print(
     rotate_stl_with_aimtool(
         "./test_data/BONE-1.stl", 
         "./test_data/BONE-1.new.stl",
-        "./test_data/BONE-2.aimtool"
+        "./test_data/BONE-2.aimtool",
+        locate_sphere_in_stl_kargs={"max_ball_cnt":4},
+        vtk_check=True
     ),
     "mm"
 )

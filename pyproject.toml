@@ -1,6 +1,6 @@
 [project]
 name = "rotate-stl-with-aimtool"
-version = "0.1.1"
+version = "0.1.2"
 description = "Register the specified STL model according to the marker ball positions defined in the aimtool file."
 authors = [
     {name = "GGN_2015",email = "neko@jlulug.org"}
